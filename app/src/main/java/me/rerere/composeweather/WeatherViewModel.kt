@@ -20,11 +20,6 @@ class WeatherViewModel : ViewModel() {
     private val _weatherData = MutableLiveData<List<Area>>()
     val weatherData: LiveData<List<Area>> = _weatherData
 
-    // 当前位置
-    private val _location = MutableLiveData<Location>()
-    val location: LiveData<Location>
-        get() = _location
-
     // 定位
     var gps by mutableStateOf(true)
 
@@ -34,16 +29,33 @@ class WeatherViewModel : ViewModel() {
     // 初始化
     init {
         _weatherData.value = listOf(
-            // 北京
-            Area("Beijing")
+            Area("Beijing"),
+            Area("Hangzhou")
         )
 
         updateAllArena()
     }
 
-    fun setCurrentLocation(location: Location) {
-        _location.value = location
+    fun addArea(name: String) {
+        weatherData.value?.let {
+            val area = Area(name)
+            (it as MutableList).add(area)
+            _weatherData.value = emptyList()
+            _weatherData.value = it
 
+            update(area)
+        }
+    }
+
+    fun removeArea(arena: Area) {
+        weatherData.value?.let {
+            (it as MutableList).remove(arena)
+            _weatherData.value = emptyList()
+            _weatherData.value = it
+        }
+    }
+
+    fun setCurrentLocation(location: Location) {
         val first = _weatherData.value?.first()
         first?.let { area ->
             if (area.location == null) {

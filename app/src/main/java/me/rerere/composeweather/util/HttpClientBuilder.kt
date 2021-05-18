@@ -9,7 +9,7 @@ object HttpClientBuilder {
 
     // API KEY
     // 前往 https://www.weatherapi.com/ 申请
-    private const val API_KEY = "<修改为你自己的API KEY>"
+    private const val API_KEY = "<你的API KEY>"
 
     private val DEBUG = HttpLoggingInterceptor {
         println(it)

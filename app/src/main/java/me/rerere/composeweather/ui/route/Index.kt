@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +68,8 @@ fun WeatherInfo(weatherViewModel: WeatherViewModel, weathers: List<Area>, pagerS
     if (weathers.isNotEmpty()) {
         Column {
             if(weathers.size > 1) {
+
+                // Pager 指示器
                 TabRow(selectedTabIndex = pagerState.currentPage) {
                     val scope = rememberCoroutineScope()
                     weathers.forEach {
@@ -74,12 +77,19 @@ fun WeatherInfo(weatherViewModel: WeatherViewModel, weathers: List<Area>, pagerS
                             modifier = Modifier.height(40.dp),
                             selected = it == weathers[pagerState.currentPage],
                             onClick = {
+                                // 点击跳转到对应Page
                                 scope.launch { pagerState.animateScrollToPage(weathers.indexOf(it)) }
                             }) {
-                            Row {
-                                Text( it.name)
-                                if(it.isCurrentLocation){
-                                    Icon(Icons.Default.MyLocation, null )
+                            Row(verticalAlignment = CenterVertically) {
+                                Text(it.name)
+                                if (it.isCurrentLocation) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                            .padding(horizontal = 4.dp),
+                                        imageVector = Icons.Default.MyLocation,
+                                        contentDescription = null
+                                    )
                                 }
                             }
                         }
@@ -202,6 +212,52 @@ fun WeatherInfo(weatherViewModel: WeatherViewModel, weathers: List<Area>, pagerS
                                 }
                             }
 
+                            // 未来天气
+                            stickyHeader {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(30.dp), contentAlignment = Alignment.CenterStart
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        text = "近三天天气",
+                                        style = TextStyle.Default.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp
+                                        )
+                                    )
+                                }
+                            }
+
+                            items(weather.forecast.forecastday) {
+                                Card(
+                                    Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Box(modifier = Modifier.padding(8.dp)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Image(
+                                                modifier = Modifier.size(40.dp),
+                                                painter = rememberCoilPainter("https:" + it.day.condition.icon),
+                                                contentDescription = null
+                                            )
+                                            Column(Modifier.padding(8.dp)) {
+                                                Text(
+                                                    "${it.day.avgtempC} ℃ ${it.day.condition.text}",
+                                                    style = TextStyle.Default.copy(fontWeight = FontWeight.Bold)
+                                                )
+                                                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                                                    Text(it.date.substring(5))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
                             // 今日小时天气
                             stickyHeader {
                                 Box(
@@ -245,51 +301,6 @@ fun WeatherInfo(weatherViewModel: WeatherViewModel, weathers: List<Area>, pagerS
                                                         )
                                                         Text(it.condition.text)
                                                     }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // 未来天气
-                            stickyHeader {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(30.dp), contentAlignment = Alignment.CenterStart
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        text = "近三天天气",
-                                        style = TextStyle.Default.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 15.sp
-                                        )
-                                    )
-                                }
-                            }
-
-                            items(weather.forecast.forecastday) {
-                                Card(
-                                    Modifier
-                                        .padding(8.dp)
-                                        .fillMaxWidth()
-                                ) {
-                                    Box(modifier = Modifier.padding(8.dp)) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Image(
-                                                modifier = Modifier.size(40.dp),
-                                                painter = rememberCoilPainter("https:" + it.day.condition.icon),
-                                                contentDescription = null
-                                            )
-                                            Column(Modifier.padding(8.dp)) {
-                                                Text(
-                                                    "${it.day.avgtempC} ℃ ${it.day.condition.text}",
-                                                    style = TextStyle.Default.copy(fontWeight = FontWeight.Bold)
-                                                )
-                                                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                                                    Text(it.date.substring(5))
                                                 }
                                             }
                                         }
